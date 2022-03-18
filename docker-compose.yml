@@ -1,0 +1,34 @@
+version: '3.3'
+services:
+  nest-app:
+    container_name: nestjs-api
+    image: powerus-challange
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_CONNECTION_STRING=mongodb://mongodb:27017/powerus
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - mongodb
+      - redis
+    restart: unless-stopped
+    links:
+      - mongodb
+      - redis
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    volumes:
+      - ./database:/data/db
+    ports:
+      - 27017:27017
+    restart: always
+
+  redis:
+    image: redis:latest
+    command: [ "redis-server", "--bind", "redis", "--port", "6379" ]
